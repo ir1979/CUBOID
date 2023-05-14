@@ -19,8 +19,8 @@ CUBOID was proposed in a research paper titled "Time Series Anomaly Detection vi
 # Installation:
 
 	1- Create a python env 
-		`conda create -n envname python=3.8.12`
-		`conda activate envname`
+		```conda create -n envname python=3.8.12```
+		```conda activate envname```
 	2- Install below packages:
 		`pip install numpy`
 		`pip install pandas`
