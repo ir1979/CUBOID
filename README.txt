@@ -12,7 +12,6 @@
 	3- Clone the repository:
 		`git clone https://github.com/ir1979/CUBOID.git` 
 	4- run the program:
-		`cd CUBOID`
 		`python main_CUBOID.py`
 
 

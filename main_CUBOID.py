@@ -4,18 +4,16 @@ import os
 import glob
 import pandas as pd
 import utility_ as ru
+import matplotlib.pyplot as plt
 
-output_path= f'D:/PHDThesis/anomalyWithTimeSeries/projects/copy of osc 14000816/osc-master/output/'
-folders=[ 'A1Benchmark','A2Benchmark', 'A3Benchmark', 'A4Benchmark'] 
-input_path = os.getcwd() + '/yahooData/'+folders[0]
+output_path= os.getcwd()+'/'
+input_path = os.getcwd()+'/' 
 files_path = glob.glob(input_path + "*.csv")
 files_path.sort()
 
-if not os.path.exists('output'):
-    os.makedirs('output')
     
-lower_bound= 10
-upper_bound= 100
+lower_bound= 60
+upper_bound= 61
 
 for file_path in files_path:
     
@@ -28,6 +26,7 @@ for file_path in files_path:
         dataset_name = dataset_name[:-4] 
     total_len= len(data) 
     labels= data['anomaly']
+    ano_ = data.index[data['anomaly']==1].tolist()
     data_type='deltax'
     algorithm='osc'
     k=3 # number of clusters
@@ -36,8 +35,8 @@ for file_path in files_path:
         
         print(f'\n dataset: {dataset_name}    window size:{window_size}....\n')
         clustering_inf_TS= ru.clustering_rep(data,window_size,k,data_type,algorithm)
-        animaly_scores_c= ru.Anomaly_score_clustering(clustering_inf_TS,)
-        accuracy_c, precision_c, recall_c, f_score_c= ru.performance_indexes(animaly_scores_c,
+        anomaly_scores_c= ru.Anomaly_score_clustering(clustering_inf_TS,)
+        accuracy_c, precision_c, recall_c, f_score_c,ano_index_c= ru.performance_indexes(anomaly_scores_c,
                                                                       labels, window_size)
         
         print('clustering method results:-----------\n')
@@ -48,16 +47,48 @@ for file_path in files_path:
                              'window_size':window_size, 'accuracy':accuracy_c,
                              'precision':precision_c, 'recall':recall_c,
                              'f_measure':f_score_c}
-        results= results.append(current_result_c, ignore_index=True)
+        #results= results.append(current_result_c, ignore_index=True)
+    
+    
+        fig, ax =plt.subplots(2,1,figsize=(2,5)) # ,
+        ax[0].plot(data['value'])
+        series=data['value'].copy()
+        for x in ano_:
+            ax[0].plot(x,series[x],'rx')
         
+        hax=[] 
+        x_labels=[] 
+        wid=[]
+    
+       
+        hax+=[0]
+        x_labels+=['0']
+        i=0
+        for j in range(1, len(anomaly_scores_c)):
+                val=j*window_size 
+                hax+=[val] 
+                x_labels+=[str(val)]     
+        ax[1].bar(hax,anomaly_scores_c, width=window_size*9/10, align='center') 
+        series=anomaly_scores_c.copy()
+        for x in ano_index_c:
+            ax[1].bar(hax[x],anomaly_scores_c[x],width=window_size*9/10, align='center')
+            ax[1].bar(hax[x],anomaly_scores_c[x],width=window_size*9/10, align='center', fill=False, hatch='////')
+        alpha=['(a) Original time series ', '(b) CUBOID']
+   
+        for i in range(0,2):
+            ax[i].set_xlim([0,len(data)])
+            ax[i].set_xlabel(alpha[i],loc='center',labelpad=1.0,size=8)
+            # ax[i].set_title(alpha[i], size=10,pad=-11)
+            ax[i].set_ylabel('Anomaly Score',labelpad=15.0,size=8)
+        ax[0].set_ylabel('Value',labelpad=5.0,size=8)
+        plt.setp(ax[0].get_yticklabels(), fontsize=8)
+    
+    
+        fig.tight_layout()
+        fig.set_size_inches(10, 6)
+        fig.savefig('Sin.png')
         
-             
-    results.to_csv('output/'+ dataset_name +'.csv')
-    print('1 file is saved')
-        
-        
-        
-        
+        plt.show()
         
         
         

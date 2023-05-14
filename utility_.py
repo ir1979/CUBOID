@@ -6,7 +6,9 @@ Created on Fri Aug 13 17:57:07 2021
 """
 import pandas as pd
 import numpy as np
-from optimal_sequence_clustering import optimal_sequence_clustering as osc
+#from optimal_sequence_clustering import optimal_sequence_clustering as osc
+import my_sequence_clustering as osc
+
 
 def clustering_rep(data,window_size,k,data_type, algorithm):
 
@@ -22,7 +24,7 @@ def clustering_rep(data,window_size,k,data_type, algorithm):
         for i in range(0,len(data_list)-1):
             delta_x+=[data_list[i+1]-data_list[i]]
         delta_frame['value']=delta_x
-    
+    X2=pd.DataFrame()
     for  start in range(0, data_len,window_size): 
         if algorithm== 'osc':
             if data_type=='deltax':
@@ -32,7 +34,7 @@ def clustering_rep(data,window_size,k,data_type, algorithm):
             X2= X2['value']
             X2=np.array(X2)
             X_array=X2
-            centers, sizes, SSE = osc(X_array, k)
+            centers, sizes, SSE,_,_ = osc.optimal_sequence_clustering_basic(X_array, k)
             all_center+=[centers]
             start=0
             label=0
@@ -87,7 +89,7 @@ def performance_indexes (anomaly_scores,labels, winsize):
     f_score= 2*(precision*recall)/(precision+recall+ 0.001)
     accuracy= (TP+TN)/total
     
-    return accuracy, precision, recall, f_score
+    return accuracy, precision, recall, f_score, ano_index
 
 
 def model_description(yhat, data, algorithm,centers, windows_counter=1):
@@ -133,7 +135,7 @@ def model_description(yhat, data, algorithm,centers, windows_counter=1):
     return description_info
 
 def Anomaly_score_clustering (clustering_inf_TS):
-    
+    dis_type='2prev'
     num_windows=len(clustering_inf_TS)
     max_num_cluster=0
     # this loop find maximum number of clusters between all sliding windows of TS
@@ -144,27 +146,30 @@ def Anomaly_score_clustering (clustering_inf_TS):
     
     # compute difference between centers of clusters in all slid windows
     anomaly_socres=[]
-    dis_type='2prev'
+    anomaly_socres2=[]
     if dis_type== '2prev':  # very bad results
         for i in range(0,num_windows):
             cur_win =  clustering_inf_TS[i]
             delta_center= 0
             if i>1 and i< num_windows:
+                temp=0
                 prev2_win = clustering_inf_TS[i-2]
                 prev_win =  clustering_inf_TS[i-1] 
                 for center_of_cur_win, center_of_prev_win, center_of_prev2_win in zip(cur_win['center'], prev_win['center'], prev2_win['center']):
-                     delta_center += (abs(center_of_cur_win-center_of_prev_win)+ abs(center_of_cur_win-center_of_prev2_win))/2
-        
+                     temp += (abs(center_of_cur_win-center_of_prev_win)+ abs(center_of_cur_win-center_of_prev2_win))/2
+                delta_center=temp[0]
             elif i==0:
                 
                 delta_center =0
                      
-            elif i== 1:        
+            elif i== 1:
+                temp=0        
                 prev_win =  clustering_inf_TS[i-1] 
                 for center_of_cur_win,  center_of_prev_win in zip(cur_win['center'],  prev_win['center']):
-                     delta_center +=  abs(center_of_cur_win-center_of_prev_win)
-            
+                    temp +=  abs(center_of_cur_win-center_of_prev_win)
+                delta_center=temp[0]
             anomaly_socres+= [delta_center] 
+            
     return anomaly_socres 
 
 
