@@ -19,19 +19,26 @@ CUBOID was proposed in a research paper titled "Time Series Anomaly Detection vi
 # Installation:
 
 	1- Create a python env 
+	
 		```bash
 		conda create -n envname python=3.8.12
 		conda activate envname
 		```
+		
 	2- Install below packages:
+	
 		`pip install numpy`
 		`pip install pandas`
 		`pip install matplotlib`
+		
 	3- Clone the repository:
+	
 		```bash
 		git clone https://github.com/ir1979/CUBOID.git
 		```
+		
 	4- Navigate to the project directory and run the program:
+	
 		```bash
 		cd CUBOID
 		python main_CUBOID.py
