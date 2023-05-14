@@ -1,5 +1,5 @@
-# CUBOID
-Anomaly detection based on clustering representation
+# CUBOID (Anomaly detection based on clustering representation)
+
 CUBOID is a time series anomaly detection Python program that comprises three modules:
 
 1- a data representation module,
